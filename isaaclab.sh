@@ -105,8 +105,8 @@ ensure_cuda_torch() {
     local python_exe=$(extract_python_exe)
     local pip_install_command=$(extract_pip_command)
     local pip_uninstall_command=$(extract_pip_uninstall_command)
-    # base index for torch
-    local base_index="https://download.pytorch.org/whl"
+    # Use Tsinghua mirror for faster downloads
+    local base_index="https://pypi.tuna.tsinghua.edu.cn/simple"
 
     # choose pins per arch
     local torch_ver tv_ver cuda_ver
@@ -120,7 +120,6 @@ ensure_cuda_torch() {
         cuda_ver="128"
     fi
 
-    local index="${base_index}/cu${cuda_ver}"
     local want_torch="${torch_ver}+cu${cuda_ver}"
 
     # check current torch version (may be empty)
@@ -140,10 +139,10 @@ PY
         return 0
     fi
 
-    # clean install torch
-    echo "[INFO] Installing torch==${torch_ver} and torchvision==${tv_ver} (cu${cuda_ver}) from ${index}..."
+    # clean install torch from Tsinghua mirror
+    echo "[INFO] Installing torch==${torch_ver}, torchvision==${tv_ver}, and torchaudio==${torch_ver} (cu${cuda_ver}) from Tsinghua mirror..."
     ${pip_uninstall_command} torch torchvision torchaudio >/dev/null 2>&1 || true
-    ${pip_install_command} -U --index-url "${index}" "torch==${torch_ver}" "torchvision==${tv_ver}"
+    ${pip_install_command} -U -i "${base_index}" "torch==${torch_ver}" "torchvision==${tv_ver}" "torchaudio==${torch_ver}"
 }
 
 # extract isaac sim path
