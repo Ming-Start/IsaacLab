@@ -6,6 +6,8 @@
 import os
 from dataclasses import MISSING
 
+import isaaclab.sim as sim_utils
+
 from isaaclab.assets import AssetBaseCfg, RigidObjectCfg
 from isaaclab.devices.device_base import DevicesCfg
 from isaaclab.devices.keyboard import Se3KeyboardCfg
@@ -18,6 +20,11 @@ from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.sensors import ContactSensorCfg, FrameTransformerCfg
 from isaaclab.sensors.frame_transformer.frame_transformer_cfg import OffsetCfg
+
+################################################
+from isaaclab.sensors.camera import CameraCfg
+################################################
+
 from isaaclab.sim.schemas.schemas_cfg import RigidBodyPropertiesCfg
 from isaaclab.sim.spawners.from_files.from_files_cfg import UsdFileCfg
 from isaaclab.utils import configclass
@@ -175,6 +182,27 @@ class RmpFlowAgibotPlaceUprightMugEnvCfg(place_toy2box_rmp_rel_env_cfg.PlaceToy2
                 scale=(1.0, 1.0, 0.60),
             ),
         )
+        
+        # RGB camera mounted above the table looking straight down
+        self.scene.front_rgbd_camera = CameraCfg(
+            prim_path="{ENV_REGEX_NS}/Camera",
+            update_period=0.0333,
+            height=480,
+            width=640,
+            data_types=["rgb"],
+            spawn=sim_utils.PinholeCameraCfg(
+                focal_length=24.0,
+                focus_distance=400.0,
+                horizontal_aperture=20.955,
+                clipping_range=(0.1, 1.0e5),
+            ),
+            offset=CameraCfg.OffsetCfg(
+                pos=(0.0, 0.2, 3),
+                rot=(0.0, 1.0, 0.0, 0.0),
+                convention="ros",
+            ),
+        )
+
 
         # add contact force sensor for grasped checking
         self.scene.contact_grasp = ContactSensorCfg(
